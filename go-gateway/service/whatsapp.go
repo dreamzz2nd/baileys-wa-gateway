@@ -50,8 +50,8 @@ func NewWhatsAppService(dbPath string, webhook *WebhookService, logLevel string)
 	ctx := context.Background()
 	log := waLog.Stdout("Main", logLevel, true)
 	dbLog := waLog.Stdout("Database", logLevel, true)
-
-	container, err := sqlstore.New(ctx, "sqlite", "file:"+dbPath+"?_pragma=foreign_keys(1)", dbLog)
+	dbURI := fmt.Sprintf("file:%s?_pragma=foreign_keys(1)&_pragma=journal_mode(WAL)&_pragma=busy_timeout(10000)&_pragma=synchronous(NORMAL)", dbPath)
+	container, err := sqlstore.New(ctx, "sqlite", dbURI, dbLog)
 	if err != nil {
 		return nil, fmt.Errorf("gagal membuka database sqlite: %w", err)
 	}
