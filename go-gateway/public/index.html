@@ -1122,9 +1122,15 @@ def send_whatsapp(receiver, message):
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
-        const data = await res.json();
 
-        if (data.success && data.data) {
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error('Server mengembalikan status HTTP ' + res.status + '. Pastikan binary wa-gateway sudah direbuild dan direstart.');
+        }
+
+        if (res.ok && data.success && data.data) {
           localStorage.setItem('wa_admin_token', data.data.token);
           if (data.data.api_key) {
             inputApiKey.value = data.data.api_key;
@@ -1133,10 +1139,10 @@ def send_whatsapp(receiver, message):
           showToast('Login berhasil! Selamat datang Admin.', true);
           showDashboard();
         } else {
-          showToast(data.message || 'Username atau Password salah!', false);
+          showToast(data.message || ('Login gagal (HTTP ' + res.status + ')'), false);
         }
       } catch (err) {
-        showToast('Gagal menghubungi server', false);
+        showToast(err.message || 'Gagal menghubungi server', false);
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>Masuk ke Dashboard</span><svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #fff; width: 14px; height: 14px;"><polyline points="9 18 15 12 9 6"></polyline></svg>';
