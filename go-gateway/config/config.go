@@ -9,6 +9,9 @@ import (
 type Config struct {
 	Port          string
 	APIKey        string
+	AdminUsername string
+	AdminPassword string
+	AdminSecret   string
 	WebhookURL    string
 	DBPath        string
 	LogLevel      string
@@ -27,6 +30,21 @@ func LoadConfig() *Config {
 		apiKey = "mysecretkey123"
 	}
 
+	adminUsername := os.Getenv("ADMIN_USERNAME")
+	if adminUsername == "" {
+		adminUsername = "admin"
+	}
+
+	adminPassword := os.Getenv("ADMIN_PASSWORD")
+	if adminPassword == "" {
+		adminPassword = "admin"
+	}
+
+	adminSecret := os.Getenv("ADMIN_SECRET")
+	if adminSecret == "" {
+		adminSecret = "wa-gateway-secret-token-key"
+	}
+
 	webhookURL := os.Getenv("WEBHOOK_URL")
 
 	dbPath := os.Getenv("DB_PATH")
@@ -40,10 +58,13 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Port:       port,
-		APIKey:     apiKey,
-		WebhookURL: webhookURL,
-		DBPath:     dbPath,
-		LogLevel:   logLevel,
+		Port:          port,
+		APIKey:        apiKey,
+		AdminUsername: adminUsername,
+		AdminPassword: adminPassword,
+		AdminSecret:   adminSecret,
+		WebhookURL:    webhookURL,
+		DBPath:        dbPath,
+		LogLevel:      logLevel,
 	}
 }

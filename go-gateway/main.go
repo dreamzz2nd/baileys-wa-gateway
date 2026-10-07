@@ -26,6 +26,7 @@ func main() {
 	fmt.Println("       🚀 WHATSAPP GATEWAY (GOLANG + WHATSMEOW)   ")
 	fmt.Println("==================================================")
 	fmt.Printf(" Port       : %s\n", cfg.Port)
+	fmt.Printf(" Admin User : %s\n", cfg.AdminUsername)
 	fmt.Printf(" API Key    : %s\n", cfg.APIKey)
 	fmt.Printf(" Webhook    : %s\n", cfg.WebhookURL)
 	fmt.Printf(" SQLite DB  : %s\n", cfg.DBPath)
@@ -49,6 +50,7 @@ func main() {
 	}
 
 	// Inisialisasi Handlers
+	authHandler := handler.NewAuthHandler(cfg)
 	sessionHandler := handler.NewSessionHandler(waSvc)
 	messageHandler := handler.NewMessageHandler(waSvc)
 	demoWebhookHandler := handler.NewWebhookDemoHandler()
@@ -64,33 +66,35 @@ func main() {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "x-api-key"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "x-api-key", "x-admin-token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
-	// Public Routes (Status, QR, Demo Webhook)
-	r.Get("/api/session/status", sessionHandler.GetStatus)
-	r.Get("/api/session/qr", sessionHandler.GetQR)
+	// Public Auth & Webhook Routes
+	r.Post("/api/auth/login", authHandler.Login)
+	r.Get("/api/auth/check", authHandler.CheckSession)
 	r.Post("/webhook/test", demoWebhookHandler.ReceiveWebhook)
 	r.Get("/webhook/logs", demoWebhookHandler.GetLogs)
 
-	// Protected API Routes (Membutuhkan x-api-key)
+	// Protected Routes (Bisa diakses dengan Header 'x-api-key' atau Login Admin 'x-admin-token')
 	r.Group(func(protected chi.Router) {
-		protected.Use(appMiddleware.AuthMiddleware(cfg.APIKey))
+		protected.Use(appMiddleware.AuthMiddleware(cfg.APIKey, cfg.AdminSecret))
 
-		// Send Messages
+		// Session Info
+		protected.Get("/api/session/status", sessionHandler.GetStatus)
+		protected.Get("/api/session/qr", sessionHandler.GetQR)
+		protected.Post("/api/session/logout", sessionHandler.Logout)
+		protected.Post("/api/session/webhook", sessionHandler.UpdateWebhook)
+
+		// Send Messages (Untuk Web Presensi / API Client)
 		protected.Post("/api/send/text", messageHandler.SendText)
 		protected.Post("/api/send/image", messageHandler.SendImage)
 		protected.Post("/api/send/document", messageHandler.SendDocument)
-
-		// Session Control
-		protected.Post("/api/session/logout", sessionHandler.Logout)
-		protected.Post("/api/session/webhook", sessionHandler.UpdateWebhook)
 	})
 
-	// Static Files (Web UI Dashboard)
+	// Static Files (Web UI Dashboard & Login)
 	workDir, _ := os.Getwd()
 	publicDir := http.Dir(workDir + "/public")
 	r.Handle("/*", http.FileServer(publicDir))
