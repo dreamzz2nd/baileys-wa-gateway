@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Gateway - Dashboard & Dokumentasi API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #10b981;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-sub: #475569;
+      
+      --wa-emerald: #10b981;
+      --wa-emerald-dark: #059669;
+      --wa-emerald-light: #ecfdf5;
+      
+      --accent-blue: #0284c7;
+      --accent-blue-light: #f0f9ff;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--wa-emerald), var(--wa-emerald-dark));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      transition: all 0.2s ease;
+    }
+
+    .status-badge.connected {
+      background-color: var(--wa-emerald-light);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--wa-emerald-dark);
+    }
+
+    .status-badge.scanning {
+      background-color: var(--accent-blue-light);
+      border-color: rgba(2, 132, 199, 0.4);
+      color: var(--accent-blue);
+    }
+
+    .status-badge.disconnected {
+      background-color: var(--danger-light);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .dot.pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .svg-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+      stroke-width: 2;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .svg-icon-fill {
+      fill: currentColor;
+      stroke: none;
+    }
+
+    /* QR / Session Box */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 270px;
+      padding: 24px;
+      background-color: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      border: 1px dashed #cbd5e1;
+      text-align: center;
+    }
+
+    .qr-image {
+      width: 210px;
+      height: 210px;
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .connected-info {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, var(--wa-emerald), var(--wa-emerald-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .user-phone {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .user-jid {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--bg-surface);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    /* Forms */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .input-with-button {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-with-button input {
+      flex: 1;
+    }
+
+    input, textarea {
+      background-color: var(--bg-surface);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--wa-emerald);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      background-color: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--wa-emerald), var(--wa-emerald-dark));
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-light);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background-color: #fee2e2;
+    }
+
+    .btn-outline {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    /* Webhook Logs */
+    .log-container {
+      max-height: 220px;
+      overflow-y: auto;
+      background-color: #0f172a;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
+    .log-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid var(--wa-emerald);
+      word-break: break-all;
+    }
+
+    .log-time {
+      color: #94a3b8;
+      margin-right: 8px;
+    }
+
+    /* Documentation Section */
+    .doc-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--wa-emerald-light);
+      color: var(--wa-emerald-dark);
+    }
+
+    .tab-content {
+      display: none;
+      position: relative;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .code-box {
+      position: relative;
+    }
+
+    pre {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .copy-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Endpoint summary table */
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .api-table th {
+      background-color: var(--bg-subtle);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-sub);
+      font-weight: 700;
+    }
+
+    .api-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .method-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .method-post {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    .method-get {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-success { background-color: var(--wa-emerald); }
+    .toast-error { background-color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24zm4.79 11.66c-.26-.13-1.56-.77-1.8-.86-.24-.09-.42-.13-.6.13-.17.26-.69.86-.84 1.04-.16.17-.31.2-.57.07-.26-.13-1.1-.41-2.1-1.3-.77-.69-1.29-1.54-1.44-1.8-.15-.26-.02-.4.11-.53.12-.12.26-.31.39-.46.13-.15.17-.26.26-.43.09-.17.04-.33-.02-.46-.07-.13-.6-1.44-.82-1.98-.22-.52-.44-.45-.6-.46-.16-.01-.34-.01-.52-.01-.18 0-.47.07-.72.33-.24.26-.94.92-.94 2.24 0 1.33.97 2.61 1.1 2.79.13.17 1.9 2.91 4.61 4.08.64.28 1.15.44 1.54.57.65.21 1.24.18 1.71.11.52-.08 1.56-.64 1.78-1.26.22-.61.22-1.14.15-1.26-.06-.11-.23-.18-.49-.31z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>WhatsApp Gateway</h1>
+        <p>Golang + Whatsmeow &bull; Ultra-lightweight REST API</p>
+      </div>
+    </div>
+    <div id="statusBadge" class="status-badge">
+      <span class="dot pulse"></span>
+      <span id="statusText">Memeriksa Sesi...</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="grid-2">
+      <!-- Session Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+            <span>WhatsApp Session & QR</span>
+          </div>
+          <button id="btnRefreshQR" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <div id="qrBox" class="qr-container">
+          <div style="color: var(--text-muted); font-size: 13px;">Memuat sesi WhatsApp...</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
+          <span style="font-size: 12px; color: var(--text-muted);">
+            Buka WA di HP &rarr; Perangkat Tertaut &rarr; Tautkan Perangkat.
+          </span>
+          <button id="btnLogout" class="btn btn-danger" style="display: none; padding: 6px 14px; font-size: 13px;">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Test Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Test Kirim Pesan Cepat</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>API Key (Header <code>x-api-key</code>)</span>
+          </label>
+          <div class="input-with-button">
+            <input type="text" id="inputApiKey" value="mysecretkey123" placeholder="Masukkan API Key">
+            <button id="btnSaveApiKey" class="btn btn-secondary" style="padding: 0 14px; font-size: 13px;" title="Terapkan API Key">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              <span>Terapkan</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>Nomor WhatsApp Tujuan</span>
+          </label>
+          <input type="text" id="inputReceiver" placeholder="08123456789 atau 628123456789">
+        </div>
+
+        <div class="form-group">
+          <label>
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Isi Pesan Teks</span>
+          </label>
+          <textarea id="inputMessage" placeholder="Tulis pesan uji coba di sini..."></textarea>
+        </div>
+
+        <button id="btnSendMessage" class="btn btn-primary">
+          <svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #fff;">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          <span>Kirim Pesan Sekarang</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Webhook Incoming Messages Log Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+            <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+          </svg>
+          <span>Realtime Pesan Masuk (Incoming Webhook Logs)</span>
+        </div>
+        <span style="font-size: 12px; color: var(--text-muted);">Auto-refresh realtime</span>
+      </div>
+
+      <div id="webhookLogs" class="log-container">
+        <div style="color: #64748b; text-align: center; padding: 20px;">
+          Belum ada pesan masuk. Kirim pesan ke nomor WhatsApp ini untuk melihat live webhook log.
+        </div>
+      </div>
+    </div>
+
+    <!-- API Documentation & Integration Guide -->
+    <div class="card doc-section">
+      <div class="card-header">
+        <div class="card-title">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Panduan Integrasi REST API & Code Snippets</span>
+        </div>
+      </div>
+
+      <!-- API Endpoint List Table -->
+      <div>
+        <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-main);">Daftar Endpoint API</h4>
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Deskripsi</th>
+              <th>Autentikasi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="method-badge method-get">GET</span></td>
+              <td><code>/api/session/status</code></td>
+              <td>Melihat status koneksi & nomor terhubung</td>
+              <td>Publik</td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-get">GET</span></td>
+              <td><code>/api/session/qr</code></td>
+              <td>Mengambil QR Code (Base64 & String)</td>
+              <td>Publik</td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-post">POST</span></td>
+              <td><code>/api/send/text</code></td>
+              <td>Kirim pesan teks (Auto format nomor 08xxx)</td>
+              <td><code>x-api-key</code></td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-post">POST</span></td>
+              <td><code>/api/send/image</code></td>
+              <td>Kirim gambar via URL + Caption</td>
+              <td><code>x-api-key</code></td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-post">POST</span></td>
+              <td><code>/api/send/document</code></td>
+              <td>Kirim dokumen (PDF/Doc/dll) via URL</td>
+              <td><code>x-api-key</code></td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-post">POST</span></td>
+              <td><code>/api/session/logout</code></td>
+              <td>Logout dan reset sesi WhatsApp</td>
+              <td><code>x-api-key</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Code Tabs -->
+      <div style="margin-top: 14px;">
+        <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-main);">Contoh Kode Integrasi Backend</h4>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('tab-curl')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            cURL
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-go')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Golang
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-php')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><path d="M16 18l6-6-6-6"></path><path d="M8 6l-6 6 6 6"></path></svg>
+            PHP / Laravel
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-js')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Node.js / JS
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-python')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Python
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-webhook')">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Webhook Payload
+          </button>
+        </div>
+
+        <!-- Tab 1: cURL -->
+        <div id="tab-curl" class="tab-content active">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-curl')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-curl"># Kirim Pesan Teks
+curl -X POST http://localhost:8080/api/send/text \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: mysecretkey123" \
+  -d '{
+    "receiver": "08123456789",
+    "message": "Halo! Pesan otomatis dari sistem kami."
+  }'
+
+# Kirim Gambar + Caption
+curl -X POST http://localhost:8080/api/send/image \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: mysecretkey123" \
+  -d '{
+    "receiver": "08123456789",
+    "image_url": "https://example.com/banner.jpg",
+    "caption": "Silahkan cek promo terbaru kami!"
+  }'</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 2: Golang -->
+        <div id="tab-go" class="tab-content">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-go')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-go">package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func SendWhatsApp(nomor, pesan string) error {
+	payload, _ := json.Marshal(map[string]string{
+		"receiver": nomor,
+		"message":  pesan,
+	})
+
+	req, err := http.NewRequest("POST", "http://localhost:8080/api/send/text", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", "mysecretkey123")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response Status:", resp.Status)
+	return nil
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 3: PHP / Laravel -->
+        <div id="tab-php" class="tab-content">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-php')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-php">// Contoh di Laravel menggunakan Http Client:
+use Illuminate\Support\Facades\Http;
+
+$response = Http::withHeaders([
+    'x-api-key' => 'mysecretkey123',
+])->post('http://localhost:8080/api/send/text', [
+    'receiver' => '08123456789',
+    'message'  => 'Halo dari Laravel!',
+]);
+
+if ($response->successful()) {
+    $data = $response->json();
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 4: JS / Node.js -->
+        <div id="tab-js" class="tab-content">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-js')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-js">const axios = require('axios');
+
+async function sendWhatsApp(receiver, message) {
+  const res = await axios.post('http://localhost:8080/api/send/text', {
+    receiver: receiver,
+    message: message
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': 'mysecretkey123'
+    }
+  });
+
+  return res.data;
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 5: Python -->
+        <div id="tab-python" class="tab-content">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-python')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-python">import requests
+
+def send_whatsapp(receiver, message):
+    url = "http://localhost:8080/api/send/text"
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "mysecretkey123"
+    }
+    payload = {
+        "receiver": receiver,
+        "message": message
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 6: Webhook -->
+        <div id="tab-webhook" class="tab-content">
+          <div class="code-box">
+            <button class="copy-btn" onclick="copyCode('code-webhook')">
+              <svg class="svg-icon" viewBox="0 0 24 24" style="width:12px; height:12px; stroke:#fff;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <pre><code id="code-webhook">/* Payload JSON yang akan dikirim Gateway ke URL Webhook Anda */
+{
+  "event": "message.upsert",
+  "timestamp": 1728289500,
+  "data": {
+    "id": "3EB0ABC12345",
+    "from": "628123456789@s.whatsapp.net",
+    "sender_name": "John Doe",
+    "is_from_me": false,
+    "is_group": false,
+    "message_type": "conversation",
+    "text": "Halo admin, mau tanya stok barang"
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">Notifikasi</div>
+
+  <script>
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const qrBox = document.getElementById('qrBox');
+    const btnLogout = document.getElementById('btnLogout');
+    const btnRefreshQR = document.getElementById('btnRefreshQR');
+    const btnSendMessage = document.getElementById('btnSendMessage');
+    const inputApiKey = document.getElementById('inputApiKey');
+    const btnSaveApiKey = document.getElementById('btnSaveApiKey');
+    const inputReceiver = document.getElementById('inputReceiver');
+    const inputMessage = document.getElementById('inputMessage');
+    const webhookLogs = document.getElementById('webhookLogs');
+
+    if (localStorage.getItem('wa_api_key')) {
+      inputApiKey.value = localStorage.getItem('wa_api_key');
+    }
+
+    btnSaveApiKey.addEventListener('click', () => {
+      const key = inputApiKey.value.trim();
+      localStorage.setItem('wa_api_key', key);
+      showToast('API Key berhasil disimpan & diintegrasikan! ✓', true);
+    });
+
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'} show`;
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 3500);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function copyCode(elemId) {
+      const code = document.getElementById(elemId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Kode berhasil disalin ke clipboard!', true);
+      });
+    }
+
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/session/status');
+        const data = await res.json();
+
+        if (data.data && data.data.logged_in) {
+          statusBadge.className = 'status-badge connected';
+          statusText.innerText = 'Connected: ' + (data.data.push_name || data.data.phone);
+          btnLogout.style.display = 'inline-flex';
+
+          qrBox.innerHTML = `
+            <div class="connected-info">
+              <div class="user-avatar">
+                <svg class="svg-icon" viewBox="0 0 24 24" style="width:36px; height:36px; stroke:#fff; stroke-width:2.5;">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="user-phone">+${data.data.phone || 'WhatsApp Account'}</div>
+              <div class="user-jid">${data.data.jid || ''}</div>
+              <p style="font-size: 13px; color: var(--wa-emerald-dark); font-weight: 600; margin-top: 6px;">
+                ● WhatsApp Terhubung & Siap Digunakan
+              </p>
+            </div>
+          `;
+        } else {
+          statusBadge.className = 'status-badge scanning';
+          statusText.innerText = 'Menunggu Scan QR...';
+          btnLogout.style.display = 'none';
+          fetchQR();
+        }
+      } catch (err) {
+        statusBadge.className = 'status-badge disconnected';
+        statusText.innerText = 'Server Offline';
+      }
+    }
+
+    async function fetchQR() {
+      try {
+        const res = await fetch('/api/session/qr');
+        const data = await res.json();
+        if (data.success && data.data && data.data.qr) {
+          qrBox.innerHTML = `
+            <img class="qr-image" src="${data.data.qr}" alt="WhatsApp QR Code" />
+            <p style="margin-top: 14px; font-size: 13px; color: var(--accent-blue); font-weight: 600;">
+              Scan QR code di atas menggunakan WhatsApp di ponsel Anda
+            </p>
+          `;
+        }
+      } catch (e) {
+        console.error("Gagal load QR", e);
+      }
+    }
+
+    btnRefreshQR.addEventListener('click', () => {
+      showToast('Memperbarui status...', true);
+      checkStatus();
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      if (!confirm('Apakah Anda yakin ingin logout dari sesi WhatsApp?')) return;
+      try {
+        const res = await fetch('/api/session/logout', {
+          method: 'POST',
+          headers: { 'x-api-key': inputApiKey.value }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Berhasil logout', true);
+          checkStatus();
+        } else {
+          showToast(data.message || 'Gagal logout', false);
+        }
+      } catch (err) {
+        showToast('Error koneksi logout', false);
+      }
+    });
+
+    btnSendMessage.addEventListener('click', async () => {
+      const receiver = inputReceiver.value.trim();
+      const message = inputMessage.value.trim();
+      const apiKey = inputApiKey.value.trim();
+
+      if (!receiver || !message) {
+        showToast('Nomor tujuan dan pesan wajib diisi', false);
+        return;
+      }
+
+      btnSendMessage.disabled = true;
+      btnSendMessage.innerHTML = '<span>⏳ Mengirim...</span>';
+
+      try {
+        const res = await fetch('/api/send/text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey
+          },
+          body: JSON.stringify({ receiver, message })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast('Pesan berhasil terkirim ke ' + receiver, true);
+          inputMessage.value = '';
+        } else {
+          showToast('Gagal: ' + (data.message || 'Gagal mengirim pesan'), false);
+        }
+      } catch (err) {
+        showToast('Error menghubungi server gateway', false);
+      } finally {
+        btnSendMessage.disabled = false;
+        btnSendMessage.innerHTML = `
+          <svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #fff;">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          <span>Kirim Pesan Sekarang</span>
+        `;
+      }
+    });
+
+    async function fetchWebhookLogs() {
+      try {
+        const res = await fetch('/webhook/logs');
+        const json = await res.json();
+        if (json.data && json.data.length > 0) {
+          webhookLogs.innerHTML = json.data.map(item => `
+            <div class="log-item">
+              <span class="log-time">[${item.timestamp}]</span>
+              <span>${typeof item.payload === 'object' ? JSON.stringify(item.payload) : item.payload}</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {}
+    }
+
+    checkStatus();
+    setInterval(checkStatus, 3000);
+    setInterval(fetchWebhookLogs, 2000);
+  </script>
+</body>
+</html>
